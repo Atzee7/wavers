@@ -1,9 +1,18 @@
+// login_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'sign_up_page.dart'; // Import halaman Sign Up
-import 'package:sosmed/app/modules/home/views/HalamanUtama/main_menu_page.dart'; // Import halaman Main Menu
+import 'package:sosmed/app/modules/home/controllers/auth_controller.dart';
+import 'sign_up_page.dart';
 
 class LoginPage extends StatelessWidget {
+  final AuthController authController = Get.find();
+
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  LoginPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,12 +39,13 @@ class LoginPage extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
-            // Username Field
+            // Email Field
             TextField(
+              controller: emailController,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.grey[200],
-                hintText: 'Username',
+                hintText: 'Email',
                 hintStyle: TextStyle(color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -46,6 +56,7 @@ class LoginPage extends StatelessWidget {
             SizedBox(height: 20),
             // Password Field
             TextField(
+              controller: passwordController,
               obscureText: true,
               decoration: InputDecoration(
                 filled: true,
@@ -87,8 +98,14 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
-                  // Navigasi ke halaman MainMenuPage setelah login
-                  Get.to(MainMenuPage());
+                  // Panggil fungsi login dari AuthController
+                  String email = emailController.text.trim();
+                  String password = passwordController.text.trim();
+                  if (email.isEmpty || password.isEmpty) {
+                    Get.snackbar('Error', 'Email dan password harus diisi');
+                  } else {
+                    authController.login(email, password);
+                  }
                 },
                 child: Text(
                   'Log In',
@@ -122,7 +139,7 @@ class LoginPage extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   ),
                   onPressed: () {
-                    // Action for Google Login
+                    // Implementasi login dengan Google
                   },
                   child: Text(
                     'Login with Google',
@@ -140,7 +157,7 @@ class LoginPage extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   ),
                   onPressed: () {
-                    // Action for Facebook Login
+                    // Implementasi login dengan Facebook
                   },
                   child: Text(
                     'Login with Facebook',
@@ -159,7 +176,7 @@ class LoginPage extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    Get.to(SignUpPage()); // Navigasi ke SignUpPage
+                    Get.to(() => SignUpPage()); // Navigasi ke SignUpPage
                   },
                   child: Text(
                     'Sign Up',

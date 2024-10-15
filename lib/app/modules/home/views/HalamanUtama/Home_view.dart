@@ -1,93 +1,79 @@
+// home_view.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sosmed/app/modules/home/views/custom_bottom_nav_bar.dart'; // Import custom bottom nav bar
+import 'package:sosmed/app/modules/home/controllers/home_controller.dart';
+import 'package:sosmed/app/modules/home/views/custom_bottom_nav_bar.dart';
+// Import the WebViewPage
+import 'package:sosmed/app/modules/home/views/webview/webview_page.dart';
 
-class MainMenuPage extends StatefulWidget {
-  @override
-  _MainMenuPageState createState() => _MainMenuPageState();
-}
-
-class _MainMenuPageState extends State<MainMenuPage> {
-  int _selectedIndex = 0;
-
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text('Home Page'),
-    Text('Likes Page'),
-    Text('Add Post'),
-    Text('Notifications Page'),
-    Text('Profile Page'),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+class HomeView extends StatelessWidget {
+  final HomeController _controller = Get.put(HomeController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xFF1A2947),
-        automaticallyImplyLeading: false, // Menyembunyikan tombol back
+        automaticallyImplyLeading: false, // Hide back button
         title: Text(
           'wavers',
           style: TextStyle(
-            color: Colors.white, // Mengubah warna teks menjadi putih
-            fontWeight: FontWeight.bold, // Opsional: menambahkan ketebalan teks
+            color: Colors.white, // Set text color to white
+            fontWeight: FontWeight.bold, // Optional: bold text
           ),
         ),
         actions: [
           IconButton(
             icon: Icon(Icons.location_on),
-            color: Colors.white, // Warna putih untuk ikon lokasi
+            color: Colors.white, // White color for location icon
             onPressed: () {
               // Action for location button
             },
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          // Post 1
-          _buildPostItem(
-            profileName: "Sarah Fernandez",
-            timeAgo: "1 hrs ago",
-            postText: "",
-            likesCount: 9,
-            commentsCount: 14,
-            imagePlaceholder: true,
-          ),
-          SizedBox(height: 20),
-          // Post 2
-          _buildPostItem(
-            profileName: "Emilia Wirtz",
-            timeAgo: "4 hrs ago",
-            postText:
-            "The sun is a daily reminder that we too can rise from the darkness, that we too can shine our own light 🌞🌸",
-            likesCount: 31,
-            commentsCount: 7,
-            imagePlaceholder: false,
-          ),
-        ],
+      body: Obx(
+            () => ListView.builder(
+          padding: const EdgeInsets.all(16.0),
+          itemCount: _controller.posts.length,
+          itemBuilder: (context, index) {
+            final post = _controller.posts[index];
+            return Column(
+              children: [
+                _buildPostItem(
+                  profileName: post.profileName,
+                  timeAgo: post.timeAgo,
+                  postText: post.postText,
+                  likesCount: post.likesCount,
+                  commentsCount: post.commentsCount,
+                  imagePlaceholder: post.imagePlaceholder,
+                  url: post.url, // Pass the URL
+                ),
+                SizedBox(height: 20), // Space between posts
+              ],
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Action for add post button
         },
         backgroundColor: Colors.yellow[700],
-        child: Icon(Icons.add),
+        child: Icon(Icons.add, color: Colors.black), // Black icon for FAB
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+      floatingActionButtonLocation:
+      FloatingActionButtonLocation.centerDocked, // Center the FAB
+      bottomNavigationBar: Obx(
+            () => CustomBottomNavBar(
+          currentIndex: _controller.selectedIndex.value,
+          onTap: _controller.onItemTapped,
+        ),
       ),
     );
   }
 
-  // Widget untuk menampilkan satu item post
+  // Post item rendering function
   Widget _buildPostItem({
     required String profileName,
     required String timeAgo,
@@ -95,8 +81,9 @@ class _MainMenuPageState extends State<MainMenuPage> {
     required int likesCount,
     required int commentsCount,
     required bool imagePlaceholder,
+    String? url, // Add URL parameter
   }) {
-    return Container(
+    Widget postContent = Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Color(0xFF1A2947),
@@ -105,13 +92,14 @@ class _MainMenuPageState extends State<MainMenuPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Profil dan waktu post
+          // Profile section
           Row(
             children: [
               CircleAvatar(
                 radius: 20,
                 backgroundColor: Colors.grey[400],
-                child: Icon(Icons.person, color: Colors.white), // Placeholder for avatar
+                child:
+                Icon(Icons.person, color: Colors.white), // Avatar placeholder
               ),
               SizedBox(width: 10),
               Column(
@@ -122,6 +110,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
                   ),
                   Text(
@@ -133,7 +122,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
             ],
           ),
           SizedBox(height: 10),
-          // Placeholder for post image
+          // Image placeholder for post
           if (imagePlaceholder)
             Container(
               height: 150,
@@ -154,13 +143,13 @@ class _MainMenuPageState extends State<MainMenuPage> {
               ),
             ),
           SizedBox(height: 10),
-          // Likes and comments
+          // Likes and comments section
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
-                  Icon(Icons.favorite, color: Colors.white, size: 18),
+                  Icon(Icons.favorite_border, color: Colors.white, size: 18),
                   SizedBox(width: 5),
                   Text(
                     likesCount.toString(),
@@ -170,7 +159,8 @@ class _MainMenuPageState extends State<MainMenuPage> {
               ),
               Row(
                 children: [
-                  Icon(Icons.comment, color: Colors.white, size: 18),
+                  Icon(Icons.chat_bubble_outline,
+                      color: Colors.white, size: 18),
                   SizedBox(width: 5),
                   Text(
                     commentsCount.toString(),
@@ -183,5 +173,18 @@ class _MainMenuPageState extends State<MainMenuPage> {
         ],
       ),
     );
+
+    // If URL is provided, wrap the postContent with GestureDetector
+    if (url != null) {
+      return GestureDetector(
+        onTap: () {
+          // Navigate to WebViewPage
+          Get.to(() => WebViewPage(url: url));
+        },
+        child: postContent,
+      );
+    } else {
+      return postContent;
+    }
   }
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "22503265199",
+    "project_id": "projek-bersama",
+    "storage_bucket": "projek-bersama.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:22503265199:android:961b5b178be38325f2155a",
+        "android_client_info": {
+          "package_name": "com.sosmed.sosmed"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBqoKzCQSrbfvVRopTe5A5lxXjJBCKSi4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
