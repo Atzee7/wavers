@@ -1,11 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart'; // Pastikan ini sudah diimport
+import 'package:image_picker/image_picker.dart';
 import 'package:sosmed/app/modules/home/controllers/edit_profile_controller.dart';
 
 class EditProfileView extends StatelessWidget {
-  // Inisialisasi controller secara manual
   final EditProfileController controller = Get.put(EditProfileController());
 
   @override
@@ -24,7 +23,6 @@ class EditProfileView extends StatelessWidget {
               // Profile Image Placeholder with Image Picker functionality
               GestureDetector(
                 onTap: () {
-                  // Open image picker when tapped
                   Get.defaultDialog(
                     title: "Choose Option",
                     content: Column(
@@ -32,14 +30,14 @@ class EditProfileView extends StatelessWidget {
                         ElevatedButton(
                           onPressed: () {
                             controller.pickImage(ImageSource.camera);
-                            Get.back(); // Close the dialog after picking an option
+                            Get.back();
                           },
                           child: Text("Camera"),
                         ),
                         ElevatedButton(
                           onPressed: () {
                             controller.pickImage(ImageSource.gallery);
-                            Get.back(); // Close the dialog after picking an option
+                            Get.back();
                           },
                           child: Text("Gallery"),
                         ),
@@ -60,38 +58,39 @@ class EditProfileView extends StatelessWidget {
                       size: 40,
                       color: Colors.grey[700],
                     )
-                        : null, // Show camera icon if no image is selected
+                        : null,
                   );
                 }),
               ),
               const SizedBox(height: 20),
 
-              // First Name Field
+              // Name Field
               TextField(
+                controller: controller.nameController,
                 decoration: const InputDecoration(
-                  labelText: 'First name',
+                  labelText: 'Name',
                   fillColor: Colors.grey,
                   filled: true,
                   border: OutlineInputBorder(),
                 ),
-                onChanged: controller.updateFirstName,
               ),
               const SizedBox(height: 10),
 
-              // Last Name Field
+              // Username Field
               TextField(
+                controller: controller.usernameController,
                 decoration: const InputDecoration(
-                  labelText: 'Last name',
+                  labelText: 'Username',
                   fillColor: Colors.grey,
                   filled: true,
                   border: OutlineInputBorder(),
                 ),
-                onChanged: controller.updateLastName,
               ),
               const SizedBox(height: 10),
 
               // Phone Number Field
               TextField(
+                controller: controller.phoneNumberController,
                 decoration: const InputDecoration(
                   labelText: 'Phone number',
                   fillColor: Colors.grey,
@@ -99,31 +98,30 @@ class EditProfileView extends StatelessWidget {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.phone,
-                onChanged: controller.updatePhoneNumber,
               ),
               const SizedBox(height: 10),
 
               // Location Field
               TextField(
+                controller: controller.locationController,
                 decoration: const InputDecoration(
-                  labelText: 'Location',
+                  labelText: 'Country',
                   fillColor: Colors.grey,
                   filled: true,
                   border: OutlineInputBorder(),
                 ),
-                onChanged: controller.updateLocation,
               ),
               const SizedBox(height: 10),
 
               // Birthday Field
               TextField(
+                controller: controller.birthdayController,
                 decoration: const InputDecoration(
                   labelText: 'Birthday',
                   fillColor: Colors.grey,
                   filled: true,
                   border: OutlineInputBorder(),
                 ),
-                onChanged: controller.updateBirthday,
               ),
               const SizedBox(height: 20),
 
@@ -133,34 +131,26 @@ class EditProfileView extends StatelessWidget {
                   Obx(() => Radio<String>(
                     value: 'Male',
                     groupValue: controller.selectedGender.value,
-                    onChanged: controller.selectGender,
+                    onChanged: controller.selectedGender,
                   )),
                   const Text('Male'),
 
                   Obx(() => Radio<String>(
                     value: 'Female',
                     groupValue: controller.selectedGender.value,
-                    onChanged: controller.selectGender,
+                    onChanged: controller.selectedGender,
                   )),
                   const Text('Female'),
 
                   Obx(() => Radio<String>(
                     value: 'Other',
                     groupValue: controller.selectedGender.value,
-                    onChanged: controller.selectGender,
+                    onChanged: controller.selectedGender,
                   )),
                   const Text('Other'),
                 ],
               ),
               const SizedBox(height: 10),
-
-              // Profile Visibility Checkbox
-              Obx(() => CheckboxListTile(
-                title: const Text('Visible on your profile'),
-                value: controller.isProfileVisible.value,
-                onChanged: controller.toggleProfileVisibility,
-              )),
-              const SizedBox(height: 20),
 
               // Save Button
               SizedBox(
@@ -168,7 +158,7 @@ class EditProfileView extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: controller.saveProfile,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.yellow[700], // Similar to UI color
+                    backgroundColor: Colors.yellow[700],
                     textStyle: const TextStyle(color: Colors.black),
                   ),
                   child: const Text('Save'),

@@ -1,10 +1,10 @@
-// home_view.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sosmed/app/modules/home/controllers/home_controller.dart';
 import 'package:sosmed/app/modules/home/views/custom_bottom_nav_bar.dart';
-// Import the WebViewPage
 import 'package:sosmed/app/modules/home/views/webview/webview_page.dart';
+import 'package:sosmed/app/modules/home/views/HalamanUtama/map_page.dart';
+import 'package:sosmed/app/modules/home/views/HalamanUtama/create_post_view.dart';
 
 class HomeView extends StatelessWidget {
   final HomeController _controller = Get.put(HomeController());
@@ -12,22 +12,24 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFF0D1B2A),
       appBar: AppBar(
         backgroundColor: Color(0xFF1A2947),
-        automaticallyImplyLeading: false, // Hide back button
+        automaticallyImplyLeading: false,
         title: Text(
-          'wavers',
+          'Wavers',
           style: TextStyle(
-            color: Colors.white, // Set text color to white
-            fontWeight: FontWeight.bold, // Optional: bold text
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
           ),
         ),
         actions: [
           IconButton(
             icon: Icon(Icons.location_on),
-            color: Colors.white, // White color for location icon
+            color: Colors.white,
             onPressed: () {
-              // Action for location button
+              Get.to(() => MapPage());
             },
           ),
         ],
@@ -40,30 +42,22 @@ class HomeView extends StatelessWidget {
             final post = _controller.posts[index];
             return Column(
               children: [
-                _buildPostItem(
-                  profileName: post.profileName,
-                  timeAgo: post.timeAgo,
-                  postText: post.postText,
-                  likesCount: post.likesCount,
-                  commentsCount: post.commentsCount,
-                  imagePlaceholder: post.imagePlaceholder,
-                  url: post.url, // Pass the URL
-                ),
-                SizedBox(height: 20), // Space between posts
+                _buildPostItem(post: post),
+                SizedBox(height: 20),
               ],
             );
           },
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Action for add post button
+          Get.to(() => CreatePostView());
         },
         backgroundColor: Colors.yellow[700],
-        child: Icon(Icons.add, color: Colors.black), // Black icon for FAB
+        shape: CircleBorder(),
+        child: Icon(Icons.add, color: Colors.black),
       ),
-      floatingActionButtonLocation:
-      FloatingActionButtonLocation.centerDocked, // Center the FAB
       bottomNavigationBar: Obx(
             () => CustomBottomNavBar(
           currentIndex: _controller.selectedIndex.value,
@@ -73,16 +67,7 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  // Post item rendering function
-  Widget _buildPostItem({
-    required String profileName,
-    required String timeAgo,
-    required String postText,
-    required int likesCount,
-    required int commentsCount,
-    required bool imagePlaceholder,
-    String? url, // Add URL parameter
-  }) {
+  Widget _buildPostItem({required Post post}) {
     Widget postContent = Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -92,21 +77,19 @@ class HomeView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Profile section
           Row(
             children: [
               CircleAvatar(
                 radius: 20,
                 backgroundColor: Colors.grey[400],
-                child:
-                Icon(Icons.person, color: Colors.white), // Avatar placeholder
+                child: Icon(Icons.person, color: Colors.white),
               ),
               SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    profileName,
+                    post.profileName,
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -114,7 +97,7 @@ class HomeView extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    timeAgo,
+                    post.timeAgo,
                     style: TextStyle(color: Colors.grey[300], fontSize: 12),
                   ),
                 ],
@@ -122,8 +105,8 @@ class HomeView extends StatelessWidget {
             ],
           ),
           SizedBox(height: 10),
-          // Image placeholder for post
-          if (imagePlaceholder)
+
+          if (post.imagePlaceholder)
             Container(
               height: 150,
               width: double.infinity,
@@ -132,41 +115,72 @@ class HomeView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-          if (postText.isNotEmpty) SizedBox(height: 10),
-          // Post text
-          if (postText.isNotEmpty)
+
+          if (post.postText.isNotEmpty) SizedBox(height: 10),
+          if (post.postText.isNotEmpty)
             Text(
-              postText,
+              post.postText,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 14,
               ),
             ),
           SizedBox(height: 10),
-          // Likes and comments section
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Row(
-                children: [
-                  Icon(Icons.favorite_border, color: Colors.white, size: 18),
-                  SizedBox(width: 5),
-                  Text(
-                    likesCount.toString(),
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ],
+              GestureDetector(
+                onTap: () {
+                  _controller.toggleLike(post.postId, post.userId);
+                },
+                child: Row(
+                  children: [
+                    Icon(
+                      post.isLiked ? Icons.favorite : Icons.favorite_border,
+                      color: post.isLiked ? Colors.red : Colors.white,
+                      size: 18,
+                    ),
+                    SizedBox(width: 5),
+                    Text(
+                      post.likesCount.toString(),
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ],
+                ),
               ),
-              Row(
-                children: [
-                  Icon(Icons.chat_bubble_outline,
-                      color: Colors.white, size: 18),
-                  SizedBox(width: 5),
-                  Text(
-                    commentsCount.toString(),
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ],
+              GestureDetector(
+                onTap: () {
+                  _controller.commentOnPost(post.postId, 'Your comment text here');
+                },
+                child: Row(
+                  children: [
+                    Icon(Icons.chat_bubble_outline, color: Colors.white, size: 18),
+                    SizedBox(width: 5),
+                    Text(
+                      post.commentsCount.toString(),
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  _controller.toggleRepost(post.postId, post.userId);
+                },
+                child: Row(
+                  children: [
+                    Icon(
+                      post.isReposted ? Icons.repeat : Icons.repeat,
+                      color: post.isReposted ? Colors.green : Colors.white,
+                      size: 18,
+                    ),
+                    SizedBox(width: 5),
+                    Text(
+                      post.repostCount.toString(),
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -174,12 +188,10 @@ class HomeView extends StatelessWidget {
       ),
     );
 
-    // If URL is provided, wrap the postContent with GestureDetector
-    if (url != null) {
+    if (post.url != null && post.url!.isNotEmpty) {
       return GestureDetector(
         onTap: () {
-          // Navigate to WebViewPage
-          Get.to(() => WebViewPage(url: url));
+          Get.to(() => WebViewPage(url: post.url!));
         },
         child: postContent,
       );

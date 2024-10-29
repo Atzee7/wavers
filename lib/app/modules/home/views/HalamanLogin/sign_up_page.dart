@@ -82,7 +82,7 @@ class SignUpPage extends StatelessWidget {
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.grey[200],
-                  hintText: 'Firstname',
+                  hintText: 'name',
                   hintStyle: TextStyle(color: Colors.grey),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -97,7 +97,7 @@ class SignUpPage extends StatelessWidget {
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.grey[200],
-                  hintText: 'Lastname',
+                  hintText: 'username',
                   hintStyle: TextStyle(color: Colors.grey),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),

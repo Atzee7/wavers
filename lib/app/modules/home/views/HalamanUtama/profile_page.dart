@@ -1,34 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sosmed/app/modules/home/controllers/profile_controller.dart';
-import 'package:sosmed/app/modules/home/controllers/auth_controller.dart'; // Import AuthController
+import 'package:sosmed/app/modules/home/controllers/auth_controller.dart';
 import 'package:sosmed/app/modules/home/views/custom_bottom_nav_bar.dart';
 import 'package:sosmed/app/modules/home/views/HalamanUtama/edit_profile_page.dart';
+import 'package:sosmed/app/modules/home/views/HalamanUtama/create_post_view.dart';
 
 class ProfilePage extends StatelessWidget {
   final ProfileController _controller = Get.put(ProfileController());
-  final AuthController _authController = Get.put(AuthController()); // Access AuthController
+  final AuthController _authController = Get.put(AuthController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xFF1A2947),
-        automaticallyImplyLeading: false, // Hide back button
+        automaticallyImplyLeading: false,
         title: Text(
           'Profile',
           style: TextStyle(
-            color: Colors.white, // Set text color to white
-            fontWeight: FontWeight.bold, // Optional: bold text
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
           ),
         ),
         actions: [
           PopupMenuButton<String>(
             onSelected: (String value) {
               if (value == 'Edit Profile') {
-                Get.to(() => EditProfileView()); // Navigate to Edit Profile Page
+                Get.to(() => EditProfileView());
               } else if (value == 'Logout') {
-                _authController.logout(); // Call the logout function from AuthController
+                _authController.logout();
               }
             },
             itemBuilder: (BuildContext context) {
@@ -39,7 +40,7 @@ class ProfilePage extends StatelessWidget {
                 );
               }).toList();
             },
-            icon: Icon(Icons.more_vert, color: Colors.white), // Three dots menu icon
+            icon: Icon(Icons.more_vert, color: Colors.white),
           ),
         ],
       ),
@@ -47,7 +48,7 @@ class ProfilePage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          // Avatar and profile name
+          // Avatar dan nama profil
           Center(
             child: Column(
               children: [
@@ -136,58 +137,96 @@ class ProfilePage extends StatelessWidget {
             ],
           ),
           SizedBox(height: 20),
-          // Post (Placeholder)
-          Container(
-            height: 150,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.grey[400],
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.favorite, color: Colors.white, size: 18),
-                  SizedBox(width: 5),
-                  Obx(() => Text(
-                    _controller.postLikes.value.toString(),
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  )),
-                ],
-              ),
-              Row(
-                children: [
-                  Icon(Icons.comment, color: Colors.white, size: 18),
-                  SizedBox(width: 5),
-                  Obx(() => Text(
-                    _controller.postComments.value.toString(),
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  )),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(height: 10),
-          Obx(() => Text(
-            _controller.postText.value,
-            style: TextStyle(color: Colors.white, fontSize: 14),
-          )),
+          // Daftar Postingan Pengguna
+          Obx(() {
+            if (_controller.userPosts.isEmpty) {
+              return Center(
+                child: Text(
+                  "No posts available",
+                  style: TextStyle(color: Colors.grey[300], fontSize: 16),
+                ),
+              );
+            } else {
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: _controller.userPosts.length,
+                itemBuilder: (context, index) {
+                  final post = _controller.userPosts[index];
+                  return Container(
+                    padding: EdgeInsets.all(16),
+                    margin: EdgeInsets.only(bottom: 10),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF1A2947),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          post['text'] ?? '',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.favorite, color: Colors.white, size: 18),
+                                SizedBox(width: 5),
+                                Text(
+                                  post['likeCount'].toString(),
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Icon(Icons.comment, color: Colors.white, size: 18),
+                                SizedBox(width: 5),
+                                Text(
+                                  post['commentCount'].toString(),
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Icon(Icons.repeat, color: Colors.white, size: 18),
+                                SizedBox(width: 5),
+                                Text(
+                                  post['repostCount'].toString(),
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            }
+          }),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Action for FAB button
+          Get.to(() => CreatePostView()); // Navigasi ke halaman Create Post
         },
-        backgroundColor: Colors.yellow[700], // FAB color
-        child: Icon(Icons.add, color: Colors.black), // FAB icon
+        backgroundColor: Colors.yellow[700],
+        shape: CircleBorder(),
+        child: Icon(Icons.add, color: Colors.black),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: 4, // Set the index to 4 for Profile
+        currentIndex: 4,
         onTap: (index) {
           // Handle navigation on tab switch
         },
