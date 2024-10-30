@@ -58,7 +58,41 @@ class ProfileController extends GetxController {
         .collection('Posts')
         .get();
 
-    userPosts.assignAll(querySnapshot.docs.map((doc) => doc.data()).toList());
+    userPosts.assignAll(querySnapshot.docs.map((doc) {
+      var data = doc.data();
+      data['postId'] = doc.id; // Tambahkan postId ke data
+      return data;
+    }).toList());
+  }
+
+  // Fungsi untuk menghapus postingan
+  void deletePost(String postId) async {
+    try {
+      // Hapus postingan dari sub-koleksi 'Users > userId > Posts'
+      await firestore
+          .collection('Users')
+          .doc(userId)
+          .collection('Posts')
+          .doc(postId)
+          .delete();
+
+      // Hapus postingan dari koleksi utama 'Posts'
+      await firestore.collection('Posts').doc(postId).delete();
+
+      // Perbarui data postingan pengguna
+      fetchUserPosts();
+
+      // Kurangi jumlah postingan pengguna
+      await firestore.collection('Users').doc(userId).update({
+        'postCount': FieldValue.increment(-1),
+      });
+
+      // Tampilkan pesan sukses
+      Get.snackbar("Success", "Post has been deleted.");
+    } catch (e) {
+      print("Error deleting post: $e");
+      Get.snackbar("Error", "Failed to delete post.");
+    }
   }
 
   // Fungsi untuk logout

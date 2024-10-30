@@ -37,7 +37,9 @@ class Post {
     return Post(
       userId: data['userId'],  // Ambil userId dari database
       profileName: profileName,
-      timestamp: (data['timestamp'] != null) ? (data['timestamp'] as Timestamp).toDate() : DateTime.now(),
+      timestamp: (data['timestamp'] != null)
+          ? (data['timestamp'] as Timestamp).toDate()
+          : DateTime.now(),
       postText: data['text'] ?? '',
       likesCount: data['likeCount'] ?? 0,
       commentsCount: data['commentCount'] ?? 0,
@@ -77,20 +79,21 @@ class HomeController extends GetxController {
     fetchPosts();
   }
 
-  // Fetch posts from Firestore
-  void fetchPosts() async {
-    final snapshot = await firestore.collection('Posts').get();
+  // Fetch posts from Firestore in real-time
+  void fetchPosts() {
+    firestore.collection('Posts').snapshots().listen((snapshot) async {
+      posts.clear();
+      for (var doc in snapshot.docs) {
+        final data = doc.data() as Map<String, dynamic>;
+        final userId = data['userId'];
 
-    for (var doc in snapshot.docs) {
-      final data = doc.data() as Map<String, dynamic>;
-      final userId = data['userId'];
+        final userSnapshot = await firestore.collection('Users').doc(userId).get();
+        final profileName = userSnapshot.data()?['name'] ?? 'Unknown';
 
-      final userSnapshot = await firestore.collection('Users').doc(userId).get();
-      final profileName = userSnapshot.data()?['name'] ?? 'Unknown';
-
-      final post = Post.fromDocument(doc, profileName, currentUserId);
-      posts.add(post);
-    }
+        final post = Post.fromDocument(doc, profileName, currentUserId);
+        posts.add(post);
+      }
+    });
   }
 
   // Fungsi untuk menambah atau menghapus like pada postingan

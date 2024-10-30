@@ -14,8 +14,6 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF1A2947),
-        automaticallyImplyLeading: false,
         title: Text(
           'Profile',
           style: TextStyle(
@@ -23,6 +21,8 @@ class ProfilePage extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
+        backgroundColor: Color(0xFF1A2947),
+        automaticallyImplyLeading: false,
         actions: [
           PopupMenuButton<String>(
             onSelected: (String value) {
@@ -163,15 +163,51 @@ class ProfilePage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          post['text'] ?? '',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        // Tambahkan Row untuk teks dan menu
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                post['text'] ?? '',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            PopupMenuButton<String>(
+                              onSelected: (String value) {
+                                if (value == 'Delete') {
+                                  // Konfirmasi sebelum menghapus
+                                  Get.defaultDialog(
+                                    title: "Delete Post",
+                                    middleText: "Are you sure you want to delete this post?",
+                                    textCancel: "Cancel",
+                                    textConfirm: "Delete",
+                                    confirmTextColor: Colors.white,
+                                    onConfirm: () {
+                                      Get.back(); // Tutup dialog
+                                      _controller.deletePost(post['postId']);
+                                    },
+                                  );
+                                }
+                              },
+                              itemBuilder: (BuildContext context) {
+                                return {'Delete'}.map((String choice) {
+                                  return PopupMenuItem<String>(
+                                    value: choice,
+                                    child: Text(choice),
+                                  );
+                                }).toList();
+                              },
+                              icon: Icon(Icons.more_vert, color: Colors.white),
+                            ),
+                          ],
                         ),
                         SizedBox(height: 10),
+                        // Bagian ikon likes, comments, reposts
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
