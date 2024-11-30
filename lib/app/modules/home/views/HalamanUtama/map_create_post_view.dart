@@ -9,7 +9,7 @@ class MapView extends StatefulWidget {
 
 class _MapViewState extends State<MapView> {
   late GoogleMapController mapController;
-  LatLng _currentPosition = LatLng(-6.200000, 106.816666); // Default to Jakarta
+  LatLng? _currentPosition; // Mengizinkan null
 
   @override
   void initState() {
@@ -17,7 +17,7 @@ class _MapViewState extends State<MapView> {
     _getUserLocation();
   }
 
-  // Function to get the user's current location
+  // Fungsi untuk mendapatkan lokasi pengguna
   Future<void> _getUserLocation() async {
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
@@ -26,21 +26,34 @@ class _MapViewState extends State<MapView> {
     });
   }
 
-  // Function to handle map creation
+  // Fungsi saat peta dibuat
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
-    mapController.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: _currentPosition,
-          zoom: 15,
+    if (_currentPosition != null) {
+      mapController.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: _currentPosition!,
+            zoom: 15,
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_currentPosition == null) {
+      // Menampilkan indikator loading saat lokasi belum tersedia
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Select Location'),
+          backgroundColor: Color(0xFF1A2947),
+        ),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Select Location'),
@@ -50,14 +63,15 @@ class _MapViewState extends State<MapView> {
             onPressed: () {
               Navigator.pop(context, _currentPosition);
             },
-            child: Text("SELECT", style: TextStyle(color: Colors.blueAccent)),
+            child:
+            Text("SELECT", style: TextStyle(color: Colors.blueAccent)),
           )
         ],
       ),
       body: GoogleMap(
         onMapCreated: _onMapCreated,
         initialCameraPosition: CameraPosition(
-          target: _currentPosition,
+          target: _currentPosition!,
           zoom: 15,
         ),
         myLocationEnabled: true,
@@ -69,7 +83,7 @@ class _MapViewState extends State<MapView> {
         markers: {
           Marker(
             markerId: MarkerId('selected-location'),
-            position: _currentPosition,
+            position: _currentPosition!,
           ),
         },
       ),

@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'auth_controller.dart';
 
 class Post {
-  final String userId;  // Gunakan userId
+  final String userId;
   final String profileName;
   final DateTime timestamp;
   final String postText;
@@ -15,6 +15,8 @@ class Post {
   final String postId;
   bool isLiked;
   bool isReposted;
+  final double? latitude;
+  final double? longitude;
 
   Post({
     required this.userId,
@@ -29,13 +31,19 @@ class Post {
     required this.postId,
     this.isLiked = false,
     this.isReposted = false,
+    this.latitude,
+    this.longitude,
   });
 
   // Convert Firestore document to Post object
-  factory Post.fromDocument(DocumentSnapshot doc, String profileName, String userId) {
+  factory Post.fromDocument(DocumentSnapshot doc, String profileName, String currentUserId) {
     final data = doc.data() as Map<String, dynamic>;
+    final locationString = data['location'] as String?;
+    final latitude = _parseLatitude(locationString);
+    final longitude = _parseLongitude(locationString);
+
     return Post(
-      userId: data['userId'],  // Ambil userId dari database
+      userId: data['userId'],
       profileName: profileName,
       timestamp: (data['timestamp'] != null)
           ? (data['timestamp'] as Timestamp).toDate()
@@ -47,9 +55,40 @@ class Post {
       imagePlaceholder: data['imageURL'] != null && data['imageURL'] != '',
       url: data['URL'],
       postId: doc.id,
-      isLiked: (data['Likes'] ?? {}).containsKey(userId),
-      isReposted: (data['Reposts'] ?? {}).containsKey(userId),
+      isLiked: (data['Likes'] ?? {}).containsKey(currentUserId),
+      isReposted: (data['Reposts'] ?? {}).containsKey(currentUserId),
+      latitude: latitude,
+      longitude: longitude,
     );
+  }
+
+  // Static methods to parse latitude and longitude from the location string
+  static double? _parseLatitude(String? location) {
+    if (location == null) return null;
+    try {
+      final regex = RegExp(r'Lat:\s*([-+]?[0-9]*\.?[0-9]+)');
+      final match = regex.firstMatch(location);
+      if (match != null) {
+        return double.parse(match.group(1)!);
+      }
+    } catch (e) {
+      print('Error parsing latitude: $e');
+    }
+    return null;
+  }
+
+  static double? _parseLongitude(String? location) {
+    if (location == null) return null;
+    try {
+      final regex = RegExp(r'Long:\s*([-+]?[0-9]*\.?[0-9]+)');
+      final match = regex.firstMatch(location);
+      if (match != null) {
+        return double.parse(match.group(1)!);
+      }
+    } catch (e) {
+      print('Error parsing longitude: $e');
+    }
+    return null;
   }
 
   String get timeAgo {
@@ -96,7 +135,7 @@ class HomeController extends GetxController {
     });
   }
 
-  // Fungsi untuk menambah atau menghapus like pada postingan
+// Fungsi untuk menambah atau menghapus like pada postingan
   Future<void> toggleLike(String postId, String postOwnerId) async {
     final userId = currentUserId;
 

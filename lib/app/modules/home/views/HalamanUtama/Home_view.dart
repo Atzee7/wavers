@@ -29,7 +29,7 @@ class HomeView extends StatelessWidget {
             icon: Icon(Icons.location_on),
             color: Colors.white,
             onPressed: () {
-              Get.to(() => MapPage());
+              Get.to(() => ()); // Modify this if needed
             },
           ),
         ],
@@ -78,30 +78,48 @@ class HomeView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween, // Add this line
             children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: Colors.grey[400],
-                child: Icon(Icons.person, color: Colors.white),
-              ),
-              SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              // Left side: Avatar, name, and time
+              Row(
                 children: [
-                  Text(
-                    post.profileName,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Colors.grey[400],
+                    child: Icon(Icons.person, color: Colors.white),
                   ),
-                  Text(
-                    post.timeAgo,
-                    style: TextStyle(color: Colors.grey[300], fontSize: 12),
+                  SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        post.profileName,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        post.timeAgo,
+                        style: TextStyle(color: Colors.grey[300], fontSize: 12),
+                      ),
+                    ],
                   ),
                 ],
               ),
+              // Right side: Location icon (if available)
+              if (post.latitude != null && post.longitude != null)
+                IconButton(
+                  icon: Icon(Icons.location_on, color: Colors.white),
+                  onPressed: () {
+                    // Navigate to MapPage with the post's location
+                    Get.to(() => MapPage(
+                      latitude: post.latitude!,
+                      longitude: post.longitude!,
+                    ));
+                  },
+                ),
             ],
           ),
           SizedBox(height: 10),
