@@ -12,8 +12,10 @@ class CreatePostView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A2947),
-        title: const Text("Create Post", style: TextStyle(color: Colors.white)),
+        title: Obx(() => Text(controller.connectivityController.isConnected.value
+            ? "Create Post (Online)"
+            : "Create Post (Offline)"
+        )),
         actions: [
           TextButton(
             onPressed: controller.post,
